@@ -1,14 +1,14 @@
 from aiogram.types import Message
 from aiogram.types import PreCheckoutQuery
 from aiogram import Router
-from models.payload import PayLoad
+from models.payload import Payload
 from product import PRODUCT
 from models.agent import c_agent
 pre_check_router = Router()
 
 @pre_check_router.pre_checkout_query()
 async def check_query(query : PreCheckoutQuery):
-    payload = PayLoad.unpack(query.invoice_payload)
+    payload = Payload.unpack(query.invoice_payload)
     user_id = query.from_user.id
     curr = query.currency
     amount = query.total_amount

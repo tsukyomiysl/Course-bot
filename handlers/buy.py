@@ -5,7 +5,7 @@ from handlers.kb import get_kb
 from models.buy_class import BuyData
 from models.agent import c_agent
 from product import PRODUCT
-from models.payload import PayLoad
+from models.payload import Payload
 from config import bot
 
 
@@ -43,7 +43,7 @@ async def get_agree(query : CallbackQuery, callback_data : BuyData):
     if await c_agent.get_confirm(user_id) and query.message:
         await query.message.answer("У вас уже куплен данный товар , получите его через /get")
         return
-    payload = (PayLoad(user_id=callback_data.user_id,item_id=callback_data.item_id)).pack()
+    payload = (Payload(user_id=callback_data.user_id,item_id=callback_data.item_id)).pack()
     if query.message:
         await query.message.answer_invoice(
             title=PRODUCT.title,
@@ -58,7 +58,7 @@ async def get_agree(query : CallbackQuery, callback_data : BuyData):
 @buy_router.message(F.successful_payment)
 async def get_paid(message : Message):
     pay_data = message.successful_payment
-    payload = PayLoad.unpack(pay_data.invoice_payload)
+    payload = Payload.unpack(pay_data.invoice_payload)
     charge_id = pay_data.telegram_payment_charge_id
     result = await c_agent.add_confirm(payload.user_id, payload.item_id, charge_id)
     if result:
