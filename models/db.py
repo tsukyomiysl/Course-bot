@@ -3,7 +3,7 @@ import psycopg
 from dataclasses import dataclass
 from psycopg.errors import UniqueViolation
 
-@dataclass
+
 class Agent():
     def __init__(self, db_path):
         self.db = db_path

@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, LabeledPrice
 from aiogram.filters import Command
-from heandlers.kb import get_kb
+from handlers.kb import get_kb
 from models.buy_class import BuyData
 from models.agent import c_agent
 from product import PRODUCT
@@ -43,12 +43,12 @@ async def get_agree(query : CallbackQuery, callback_data : BuyData):
     if await c_agent.get_confirm(user_id) and query.message:
         await query.message.answer("У вас уже куплен данный товар , получите его через /get")
         return
-    
+    payload = (PayLoad(user_id=callback_data.user_id,item_id=callback_data.item_id)).pack()
     if query.message:
         await query.message.answer_invoice(
             title=PRODUCT.title,
             description=PRODUCT.description,
-            payload=(PayLoad(user_id=callback_data.user_id,item_id=callback_data.item_id)).pack(),
+            payload=payload,
             currency="XTR",
             prices=[LabeledPrice(label="оплата товара", amount=PRODUCT.price)],
             provider_token="",
@@ -58,11 +58,11 @@ async def get_agree(query : CallbackQuery, callback_data : BuyData):
 @buy_router.message(F.successful_payment)
 async def get_paid(message : Message):
     pay_data = message.successful_payment
-    payload_data = PayLoad.unpack(pay_data.invoice_payload)
+    payload = PayLoad.unpack(pay_data.invoice_payload)
     charge_id = pay_data.telegram_payment_charge_id
-    result = await c_agent.add_confirm(payload_data.user_id, payload_data.item_id, charge_id)
+    result = await c_agent.add_confirm(payload.user_id, payload.item_id, charge_id)
     if result:
         await message.answer("✅ Оплата прошла успешно , для получения товара воспользуйтесь командой /get")
     else:
-        await bot.refund_star_payment(user_id=payload_data.user_id, telegram_payment_charge_id=charge_id)
+        await bot.refund_star_payment(user_id=payload.user_id, telegram_payment_charge_id=charge_id)
         await message.answer("🔄 Произошла ошибка , возврат средств осуществлен")

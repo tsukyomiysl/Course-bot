@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
-class Course():
+class Course:
     id : int
     title : str
     description : str

@@ -4,9 +4,9 @@ from aiogram import Router
 from models.payload import PayLoad
 from product import PRODUCT
 from models.agent import c_agent
-check_rout = Router()
+pre_check_router = Router()
 
-@check_rout.pre_checkout_query()
+@pre_check_router.pre_checkout_query()
 async def check_query(query : PreCheckoutQuery):
     payload = PayLoad.unpack(query.invoice_payload)
     user_id = query.from_user.id
